@@ -4,7 +4,9 @@ pipeline {
 	environment {
 		DOCKER_USER = 'ouxthm'
 		DOCKER_IMAGE = "${DOCKER_USER}/boot-app:latest"
-		CONTAINER_NAME = 'boot-app'
+		//CONTAINER_NAME = 'boot-app'
+		COMPOSE_FILE = 'docker-compose.yml'
+		
 	}
 	stages{
 		stage('Checkout'){
@@ -12,7 +14,7 @@ pipeline {
 				echo 'Git Checkout'
 				checkout scm
 			}
-		}
+		}	
 		
 		stage('Gradlew Build') {
 			steps {
@@ -33,20 +35,20 @@ pipeline {
 			}
 		}
 		
-		stage('Docker Hub Login') {
-			steps {
-				echo 'DockerHub Login'
-				withCredentials([usernamePassword(
-					credentialsId: 'dockerhub-credential',
-					usernameVariable: 'DOCKER_ID',
-					passwordVariable: 'DOCKER_PW'
-				)]){
-					sh """
-					    echo $DOCKER_PW | docker login -u $DOCKER_ID --password-stdin					
-					   """
+			stage('Docker Hub Login') {
+				steps {
+					echo 'DockerHub Login'
+					withCredentials([usernamePassword(
+						credentialsId: 'dockerhub-credential',
+						usernameVariable: 'DOCKER_ID',
+						passwordVariable: 'DOCKER_PW'
+					)]){
+						sh """
+						    echo $DOCKER_PW | docker login -u $DOCKER_ID --password-stdin					
+						   """
+					}
 				}
 			}
-		}
 		
 		stage('DockerHub Push') {
 			steps {
@@ -57,7 +59,24 @@ pipeline {
 			}
 		}
 		
-		stage('Docker Run') {
+		stage('Docker Compose') {
+			steps {
+				echo 'docker-compose down'
+				sh """
+					docker-compose -f ${COMPOSE_FILE} down || true
+				   """
+			}
+		}
+		
+		stage('Docker Compose Up') {
+			steps {
+				echo 'docker-compose up'
+				sh """
+					docker-compose -f ${COMPOSE_FILE} up -d
+				   """
+			}
+		}
+		/*stage('Docker Run') {
 			steps {
 				echo 'Docker Run'
 				sh '''
@@ -71,7 +90,7 @@ pipeline {
 					${DOCKER_IMAGE}
 				   '''
 			}
-		}
+		}*/
 	}
 	
 	post {
