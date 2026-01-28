@@ -60,12 +60,12 @@ pipeline {
 		        sshagent(['aws-ssh-key']) {
 		            sh """
 		                ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
-		                    sudo docker stop awscicd || true
-		                    sudo docker rm awscicd || true
-		                    sudo docker pull ${DOCKER_IMAGE}
-		                    sudo docker run --name awscicd -d -p 8080:9090 ${DOCKER_IMAGE}
-						EOF
-		            	"""
+sudo docker stop awscicd || true
+sudo docker rm awscicd || true
+sudo docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+sudo docker run --name awscicd -d -p 8080:9090 ${DOCKER_IMAGE}:${DOCKER_TAG}
+EOF
+		            """
 		        }
 		    }
 		}
