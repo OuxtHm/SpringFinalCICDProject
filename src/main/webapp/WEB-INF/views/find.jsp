@@ -26,7 +26,7 @@ p {
 <body>
 	<div class="container">
 		<div class="row">
-		
+			<h3>맛집 검색</h3>
 		</div>
 	</div>
 </body>
