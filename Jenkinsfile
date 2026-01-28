@@ -8,7 +8,7 @@ pipeline {
 		COMPOSE_FILE = 'docker-compose.yml'*/
 		DOCKER_IMAGE = "ouxthm/awscicd-app"
 		DOCKER_TAG = "latest"
-		EC2_HOST = "ip"
+		EC2_HOST = "13.125.173.64"
 		EC2_USER = "ubuntu"
 	}
 	stages{
