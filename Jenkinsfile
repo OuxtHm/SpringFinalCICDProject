@@ -4,7 +4,7 @@ pipeline {
 	environment {
 		DOCKER_USER = 'ouxthm'
 		DOCKER_IMAGE = "${DOCKER_USER}/boot-app:latest"
-		//CONTAINER_NAME = 'boot-app'
+		CONTAINER_NAME = 'boot-app'
 		COMPOSE_FILE = 'docker-compose.yml'
 		
 	}
@@ -64,6 +64,17 @@ pipeline {
 				echo 'docker-compose down'
 				sh """
 					docker-compose -f ${COMPOSE_FILE} down || true
+				   """
+			}
+		}
+		
+		stage('Docker Stop And RM') {
+			step {
+				echo 'docker stop rm'
+				sh """
+					docker stop${CONTAINER_NAME} || true
+					docker rm ${CONTAINER_NAME} || true
+					docker pull ${DOCKER_IMAGE}
 				   """
 			}
 		}
