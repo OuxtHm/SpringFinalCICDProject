@@ -57,7 +57,7 @@ pipeline {
 			
 		stage('Deploy to EC2') {
 		    steps {
-		        sshagent(credentials:['aws-ssh-key']) {
+		        sshagent(['aws-ssh-key']) {
 		            sh """
 		                ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
 		                    sudo docker stop awscicd || true
