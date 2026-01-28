@@ -56,17 +56,18 @@ pipeline {
 			}
 			
 		stage('Deploy to EC2') {
-			steps {
-				echo 'Deploy to EC2'
-				sh """
-					ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
-						docekr stop awscicd || true
-						docekr rm awscicd || true
-						docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
-						docker run --name aswcicd -it -d -p 8080:9090 ${DOCKER_IMAGE}:${DOCKER_TAG}
-					EOF
-				   """
-			}
+		    steps {
+		        sshagent(credentials:['aws-ssh-key']) {
+		            sh """
+		                ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
+		                    sudo docker stop awscicd || true
+		                    sudo docker rm awscicd || true
+		                    sudo docker pull ${DOCKER_IMAGE}
+		                    sudo docker run --name awscicd -d -p 8080:9090 ${DOCKER_IMAGE}
+						EOF
+		            	"""
+		        }
+		    }
 		}
 		
 		stage('DockerHub Push') {
