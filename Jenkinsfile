@@ -2,7 +2,8 @@ pipeline {
 	agent any
 	
 	environment {
-		DOCKER_IMAGE = 'ouxthm/boot-app:latest'
+		DOCKER_USER = 'ouxthm'
+		DOCKER_IMAGE = '${DOCKER_USER}/boot-app:latest'
 		CONTAINER_NAME = 'boot-app'
 	}
 	stages{
@@ -32,12 +33,38 @@ pipeline {
 			}
 		}
 		
+		stage('Docker Hub Login') {
+			steps {
+				echo 'DockerHub Login'
+				withCredentials([usernamePassword(
+					CredentialsId: 'dockerhub-credential',
+					usernameVariable: 'DOCKER_ID',
+					passwordVariable: 'DOCKER_PW'
+				)]){
+					sh '''
+					    echo $DOCKER_PW | docker login -u $DOCKER_ID --password-stdin
+					   '''
+				}
+			}
+		}
+		
+		stage('DockerHub Push') {
+			steps {
+				echo 'Docker Hub Push'
+				sh '''
+					docker push ${DOCKER_IMAGE}
+				   '''
+			}
+		}
+		
 		stage('Docker Run') {
 			steps {
 				echo 'Docker Run'
 				sh '''
 					docker stop ${CONTAINER_NAME} || true
 					docker rm ${CONTAINER_NAME} || true
+					
+					docker pull ${DOCKER_IMAGE}
 					
 					docker run --name ${CONTAINER_NAME} \
 					-it -d -p 8080:9090\
