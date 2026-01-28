@@ -3,7 +3,7 @@ pipeline {
 	
 	environment {
 		DOCKER_USER = 'ouxthm'
-		DOCKER_IMAGE = '${DOCKER_USER}/boot-app:latest'
+		DOCKER_IMAGE = "${DOCKER_USER}/boot-app:latest"
 		CONTAINER_NAME = 'boot-app'
 	}
 	stages{
