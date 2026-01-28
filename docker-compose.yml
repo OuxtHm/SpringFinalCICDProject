@@ -1,6 +1,6 @@
 version: "3"
 services:
-	app:
-		image: ouxthm/boot-app
-		ports:
-			- "9090:9090"
+  app:
+    image: ouxthm/boot-app
+    ports:
+      - "8080:9090"
