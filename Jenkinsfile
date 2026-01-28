@@ -69,10 +69,10 @@ pipeline {
 		}
 		
 		stage('Docker Stop And RM') {
-			step {
+			steps {
 				echo 'docker stop rm'
 				sh """
-					docker stop${CONTAINER_NAME} || true
+					docker stop ${CONTAINER_NAME} || true
 					docker rm ${CONTAINER_NAME} || true
 					docker pull ${DOCKER_IMAGE}
 				   """
