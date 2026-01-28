@@ -2,11 +2,14 @@ pipeline {
 	agent any
 	
 	environment {
-		DOCKER_USER = 'ouxthm'
+		/*DOCKER_USER = 'ouxthm'
 		DOCKER_IMAGE = "${DOCKER_USER}/boot-app:latest"
 		CONTAINER_NAME = 'boot-app'
-		COMPOSE_FILE = 'docker-compose.yml'
-		
+		COMPOSE_FILE = 'docker-compose.yml'*/
+		DOCKER_IMAGE = "ouxthm/awscicd-app"
+		DOCKER_TAG = "latest"
+		EC2_HOST = "ip"
+		EC2_USER = "ubuntu"
 	}
 	stages{
 		stage('Checkout'){
@@ -30,7 +33,7 @@ pipeline {
 			steps {
 				echo 'Docker Image Build'
 				sh '''
-					docker build -t ${DOCKER_IMAGE} .
+					docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 				   '''
 			}
 		}
@@ -44,11 +47,27 @@ pipeline {
 						passwordVariable: 'DOCKER_PW'
 					)]){
 						sh """
-						    echo $DOCKER_PW | docker login -u $DOCKER_ID --password-stdin					
+						    echo "DOCKER_ID=$DOCKER_ID, DOCKER_PW=$DOCKER_PW"
+						    echo "$DOCKER_PW" | docker login -u "$DOCKER_ID" --password-stdin	
+						    docker push ${DOCKER_IMAGE}:${DOCKER_TAG}			
 						   """
 					}
 				}
 			}
+			
+		stage('Deploy to EC2') {
+			steps {
+				echo 'Deploy to EC2'
+				sh """
+					ssh -o StricHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
+						docekr stop awscicd || true
+						docekr rm awscicd || true
+						docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+						docker run --name aswcicd -it -d -p 8080:9090 ${DOCKER_IMAGE}:${DOCKER_TAG}
+					EOF
+				   """
+			}
+		}
 		
 		stage('DockerHub Push') {
 			steps {
@@ -59,7 +78,7 @@ pipeline {
 			}
 		}
 		
-		stage('Docker Compose') {
+		/*stage('Docker Compose') {
 			steps {
 				echo 'docker-compose down'
 				sh """
@@ -86,7 +105,7 @@ pipeline {
 					docker-compose -f ${COMPOSE_FILE} up -d
 				   """
 			}
-		}
+		}*/
 		/*stage('Docker Run') {
 			steps {
 				echo 'Docker Run'
@@ -106,10 +125,10 @@ pipeline {
 	
 	post {
 		success {
-			echo 'Docker 실행 성공'
+			echo 'CI / CD 실행 성공'
 		}
 		failure {
-			echo 'Docker 실행 실패'
+			echo 'CI / CD 실행 실패'
 		}
 	}
 }
