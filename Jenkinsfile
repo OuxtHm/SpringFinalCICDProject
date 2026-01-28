@@ -59,7 +59,7 @@ pipeline {
 			steps {
 				echo 'Deploy to EC2'
 				sh """
-					ssh -o StricHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
+					ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
 						docekr stop awscicd || true
 						docekr rm awscicd || true
 						docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
