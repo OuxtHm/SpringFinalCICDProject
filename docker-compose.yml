@@ -3,4 +3,4 @@ services:
   app:
     image: ouxthm/boot-app
     ports:
-      - "9090:9090"
+      - "8080:9090"
